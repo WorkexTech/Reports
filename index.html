@@ -56,6 +56,10 @@
     .row > div:nth-child(4)::before{content:'Interval: '}
     .detail-grid{grid-template-columns:1fr;gap:10px}
     .bearing-btn{font-size:1rem}
+    .toolbar{flex-direction:column;gap:10px}
+    .toolbar input{width:100%;margin-bottom:5px}
+    .button-row{display:flex;gap:8px;width:100%}
+    .button-row .btn{flex:1}
   }
   
   /* Print styles */
@@ -89,8 +93,10 @@
 
       <div class="toolbar">
         <input id="filter" placeholder="Filter bearings (e.g. UC208, 40mm, 90 days, A1)" autocomplete="off"/>
-        <button class="btn" id="expandAll">Expand all</button>
-        <button class="btn" id="collapseAll">Collapse all</button>
+        <div class="button-row">
+          <button class="btn" id="expandAll">Expand all</button>
+          <button class="btn" id="collapseAll">Collapse all</button>
+        </div>
       </div>
 
       <div class="table-head">
