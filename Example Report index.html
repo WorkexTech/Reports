@@ -1,0 +1,376 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Bearing Maintenance Report</title>
+<style>
+  :root{
+    --brand:#1f6fb5; --ink:#1c1c1c; --muted:#6b7280; --line:#e5e7eb; --bg:#f5f6f8; --chip:#f59e0b;
+    --radius:14px; --success:#10b981; --warning:#f59e0b; --danger:#ef4444;
+  }
+  body{margin:0;background:var(--bg);font:16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Arial}
+  .wrap{max-width:860px;margin:28px auto;padding:0 14px}
+  .card{background:#fff;border-radius:var(--radius);box-shadow:0 6px 20px rgba(0,0,0,.06);overflow:hidden}
+  .card-header{background:var(--brand);color:#fff;padding:16px 18px}
+  .subtitle{opacity:.9;font-size:.95rem;margin-top:4px}
+  .toolbar{display:flex;gap:8px;flex-wrap:wrap;padding:10px 12px;background:#f0f4f9;border-bottom:1px solid var(--line)}
+  .toolbar input{flex:1;min-width:200px;padding:10px 12px;border:1px solid #cbd5e1;border-radius:10px;outline:none;transition:border-color 0.2s}
+  .toolbar input:focus{border-color:var(--brand);box-shadow:0 0 0 3px rgba(31,111,181,0.1)}
+  .btn{padding:8px 12px;border:1px solid #cbd5e1;border-radius:10px;background:#fff;cursor:pointer;transition:all 0.2s}
+  .btn:hover{background:#f8fafc;border-color:var(--brand)}
+  .table-head, .row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;align-items:center}
+  .table-head{padding:10px 16px;background:#f8fafc;border-top:1px solid var(--line);border-bottom:1px solid var(--line);color:#334155;font-weight:600}
+  .row{padding:12px 16px;border-bottom:1px solid var(--line);background:#fff;transition:all 0.3s ease}
+  .row:hover{background:#f9fafb;transform:translateX(2px)}
+  .bearing-btn{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;font-weight:600;color:var(--brand);transition:all 0.2s;width:100%}
+  .bearing-btn:hover{color:#1553a0}
+  .bearing-btn::after{content:'▼';margin-left:auto;transition:transform 0.3s ease;font-size:0.8em;opacity:0.7}
+  .bearing-btn[aria-expanded="true"]::after{transform:rotate(180deg)}
+  .qty{background:var(--chip);color:#fff;font-weight:700;font-size:.76rem;border-radius:999px;padding:2px 8px;animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.7}}
+  .detail{display:none;border-top:1px dashed var(--line);margin-top:10px;padding-top:12px;grid-column:1/-1;animation:slideDown 0.3s ease-out}
+  @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+  .detail.show{display:block}
+  .detail-grid{display:grid;grid-template-columns:1.2fr 1.2fr 1.2fr 1.6fr;gap:14px}
+  .kv{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;transition:all 0.2s}
+  .kv:hover{background:#f1f5f9;border-color:#cbd5e1}
+  .kv b{display:block;color:#111;margin-bottom:4px}
+  .note{background:#fff7ed;border:1px solid #fed7aa}
+  .imgbox{display:flex;align-items:center;justify-content:center;border:1px dashed #cbd5e1;border-radius:12px;min-height:120px;background:#fff;overflow:hidden;transition:border-color 0.2s}
+  .imgbox:hover{border-color:var(--brand)}
+  .imgbox img{max-width:100%;height:auto;display:block}
+  .muted{color:var(--muted)}
+  .hidden{display:none}
+  
+
+  
+  /* Enhanced mobile responsiveness */
+  @media (max-width:720px){
+    .table-head{display:none}
+    .row{grid-template-columns:1fr;gap:8px}
+    .row > div:not(:first-child){display:flex;justify-content:space-between;font-size:0.9em;color:var(--muted)}
+    .row > div:not(:first-child)::before{font-weight:600;color:var(--ink)}
+    .row > div:nth-child(2)::before{content:'Pumps: '}
+    .row > div:nth-child(3)::before{content:'Volume: '}
+    .row > div:nth-child(4)::before{content:'Interval: '}
+    .detail-grid{grid-template-columns:1fr;gap:10px}
+    .bearing-btn{font-size:1rem}
+  }
+  
+  /* Print styles */
+  @media print{
+    body{background:#fff}
+    .toolbar{display:none}
+    .card{box-shadow:none;border:1px solid var(--line)}
+    .detail{display:block !important}
+    .row{break-inside:avoid}
+  }
+  
+  /* Focus styles for accessibility */
+  .bearing-btn:focus{outline:2px solid var(--brand);outline-offset:2px;border-radius:4px}
+  .btn:focus{outline:2px solid var(--brand);outline-offset:2px}
+  
+  /* Loading state */
+  .loading{opacity:0.6;pointer-events:none}
+  
+  /* Search highlight */
+  .highlight{background:linear-gradient(90deg, transparent, #fef3c7, transparent);animation:highlight 1s ease-out}
+  @keyframes highlight{from{background-position:-100% 0}to{background-position:100% 0}}
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="card-header">
+        <h2 style="margin:0">Bearing Maintenance Report</h2>
+        <div class="subtitle">Equipment ID: MX-2845 • Conveyor Unit C-204 • Last Updated: <span id="lastUpdated"></span></div>
+      </div>
+
+      <div class="toolbar">
+        <input id="filter" placeholder="Filter bearings (e.g. UC208, 40mm, 90 days, A1)" autocomplete="off"/>
+        <button class="btn" id="expandAll">Expand all</button>
+        <button class="btn" id="collapseAll">Collapse all</button>
+      </div>
+
+      <div class="table-head">
+        <div>BEARING SIZE</div><div>GREASE PUMPS</div><div>VOLUME</div><div>INTERVAL</div>
+      </div>
+
+      <div class="row" data-search="uc203 17mm 90 days c-204 standard housing">
+        <div>
+          <button class="bearing-btn" aria-expanded="false" tabindex="0">
+            <span>UC203 (17mm)</span>
+          </button>
+        </div>
+        <div>2–3 pumps</div>
+        <div>3–5 ml</div>
+        <div>90 days</div>
+
+        <div class="detail">
+          <div class="detail-grid">
+            <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
+            <div class="kv"><b>Pumps Required</b><span>2–3 pumps (≈3–5 ml)</span></div>
+            <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
+            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Position B2</span></div>
+            <div class="kv imgbox"><img alt="UC203 bearing image" src="" onerror="this.parentElement.innerHTML='<span class=&quot;muted&quot;>📷 Add photo: images/uc203.jpg</span>'"/></div>
+            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" data-search="uc204 20mm 90 days qty2 c-204 spray zone">
+        <div>
+          <button class="bearing-btn" aria-expanded="false" tabindex="0">
+            <span>UC204 (20mm)</span> <span class="qty">Qty: 2</span>
+          </button>
+        </div>
+        <div>3–4 pumps</div>
+        <div>5–6 ml</div>
+        <div>90 days</div>
+
+        <div class="detail">
+          <div class="detail-grid">
+            <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
+            <div class="kv"><b>Pumps Required</b><span>3–4 pumps (≈5–6 ml)</span></div>
+            <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
+            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Position B3 & B4</span></div>
+            <div class="kv imgbox"><img alt="UC204 photo" src="" onerror="this.parentElement.innerHTML='<span class=&quot;muted&quot;>📷 Add photo: images/uc204.jpg</span>'"/></div>
+            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" data-search="uc205 25mm 90 days c-204 misalignment">
+        <div>
+          <button class="bearing-btn" aria-expanded="false" tabindex="0">
+            <span>UC205 (25mm)</span>
+          </button>
+        </div>
+        <div>3–4 pumps</div>
+        <div>5–8 ml</div>
+        <div>90 days</div>
+
+        <div class="detail">
+          <div class="detail-grid">
+            <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
+            <div class="kv"><b>Pumps Required</b><span>3–4 pumps (≈5–8 ml)</span></div>
+            <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
+            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Position B5</span></div>
+            <div class="kv imgbox"><img alt="UC205 photo" src="" onerror="this.parentElement.innerHTML='<span class=&quot;muted&quot;>📷 Add photo: images/uc205.jpg</span>'"/></div>
+            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" data-search="uc206 30mm 90 days qty3 c-204 high load">
+        <div>
+          <button class="bearing-btn" aria-expanded="false" tabindex="0">
+            <span>UC206 (30mm)</span> <span class="qty">Qty: 3</span>
+          </button>
+        </div>
+        <div>4–5 pumps</div>
+        <div>8–10 ml</div>
+        <div>90 days</div>
+
+        <div class="detail">
+          <div class="detail-grid">
+            <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
+            <div class="kv"><b>Pumps Required</b><span>4–5 pumps (≈8–10 ml)</span></div>
+            <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
+            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Positions B6, B7, B8</span></div>
+            <div class="kv imgbox"><img alt="UC206 photo" src="" onerror="this.parentElement.innerHTML='<span class=&quot;muted&quot;>📷 Add photo: images/uc206.jpg</span>'"/></div>
+            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" data-search="uc208 40mm 90 days qty2 drive end position a1 40mm">
+        <div>
+          <button class="bearing-btn" aria-expanded="false" tabindex="0">
+            <span>UC208 (40mm)</span> <span class="qty">Qty: 2</span>
+          </button>
+        </div>
+        <div>5 pumps</div>
+        <div>12–15 ml</div>
+        <div>90 days</div>
+
+        <div class="detail">
+          <div class="detail-grid">
+            <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
+            <div class="kv"><b>Pumps Required</b><span>5 pumps (≈12–15 ml)</span></div>
+            <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
+            <div class="kv"><b>Location Details</b><span><b>🔧 Drive End</b> • Position A1 • 40mm Shaft</span></div>
+            <div class="kv imgbox"><img alt="UCF208 square flange" src="" onerror="this.parentElement.innerHTML='<span class=&quot;muted&quot;>📷 Add photo: images/ucf208.jpg</span>'"/></div>
+            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" data-search="uc209 45mm 90 days loto lockout">
+        <div>
+          <button class="bearing-btn" aria-expanded="false" tabindex="0">
+            <span>UC209 (45mm)</span>
+          </button>
+        </div>
+        <div>5 pumps</div>
+        <div>15–18 ml</div>
+        <div>90 days</div>
+
+        <div class="detail">
+          <div class="detail-grid">
+            <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
+            <div class="kv"><b>Pumps Required</b><span>5 pumps (≈15–18 ml)</span></div>
+            <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
+            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Position C1</span></div>
+            <div class="kv imgbox"><img alt="UC209 photo" src="" onerror="this.parentElement.innerHTML='<span class=&quot;muted&quot;>📷 Add photo: images/uc209.jpg</span>'"/></div>
+            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row" data-search="uc210 50mm 90 days temperature monitoring">
+        <div>
+          <button class="bearing-btn" aria-expanded="false" tabindex="0">
+            <span>UC210 (50mm)</span>
+          </button>
+        </div>
+        <div>5 pumps</div>
+        <div>18–22 ml</div>
+        <div>90 days</div>
+
+        <div class="detail">
+          <div class="detail-grid">
+            <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
+            <div class="kv"><b>Pumps Required</b><span>5 pumps (≈18–22 ml)</span></div>
+            <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
+            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Position C2</span></div>
+            <div class="kv imgbox"><img alt="UC210 photo" src="" onerror="this.parentElement.innerHTML='<span class=&quot;muted&quot;>📷 Add photo: images/uc210.jpg</span>'"/></div>
+            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs. Last serviced: Aug 1, 2025</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  // Set last updated date
+  document.getElementById('lastUpdated').textContent = new Date().toLocaleDateString('en-US', {
+    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+  });
+
+  // Enhanced toggle functionality with animations
+  document.querySelectorAll('.bearing-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      const row = btn.closest('.row');
+      const detail = row.querySelector('.detail');
+      const isExpanded = btn.getAttribute('aria-expanded') === 'true';
+      
+      if (isExpanded) {
+        detail.style.animation = 'slideUp 0.3s ease-out';
+        setTimeout(() => {
+          detail.style.display = 'none';
+          detail.classList.remove('show');
+        }, 250);
+      } else {
+        detail.style.display = 'block';
+        detail.classList.add('show');
+        detail.style.animation = 'slideDown 0.3s ease-out';
+      }
+      
+      btn.setAttribute('aria-expanded', String(!isExpanded));
+    });
+    
+    // Keyboard support
+    btn.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        btn.click();
+      }
+    });
+  });
+
+  // Enhanced filter with highlighting
+  const filter = document.getElementById('filter');
+  let filterTimeout;
+  
+  filter.addEventListener('input', ()=>{
+    clearTimeout(filterTimeout);
+    const query = filter.value.toLowerCase().trim();
+    
+    filterTimeout = setTimeout(() => {
+      document.querySelectorAll('.row').forEach(row=>{
+        const matches = row.dataset.search.includes(query);
+        row.style.display = matches || query === '' ? '' : 'none';
+        
+        if (matches && query !== '') {
+          row.classList.add('highlight');
+          setTimeout(() => row.classList.remove('highlight'), 1000);
+        }
+      });
+    }, 150);
+  });
+
+  // Enhanced expand/collapse all with loading state
+  function setLoadingState(enabled) {
+    const buttons = document.querySelectorAll('.btn');
+    buttons.forEach(btn => {
+      btn.classList.toggle('loading', enabled);
+      btn.disabled = enabled;
+    });
+  }
+
+  document.getElementById('expandAll').onclick = ()=>{
+    setLoadingState(true);
+    setTimeout(() => {
+      document.querySelectorAll('.row .detail').forEach((detail, index) => {
+        setTimeout(() => {
+          detail.style.display = 'block';
+          detail.classList.add('show');
+          detail.style.animation = 'slideDown 0.3s ease-out';
+        }, index * 50);
+      });
+      document.querySelectorAll('.bearing-btn').forEach(btn => {
+        btn.setAttribute('aria-expanded', 'true');
+      });
+      setLoadingState(false);
+    }, 100);
+  };
+
+  document.getElementById('collapseAll').onclick = ()=>{
+    setLoadingState(true);
+    setTimeout(() => {
+      document.querySelectorAll('.row .detail').forEach((detail, index) => {
+        setTimeout(() => {
+          detail.style.animation = 'slideUp 0.3s ease-out';
+          setTimeout(() => {
+            detail.style.display = 'none';
+            detail.classList.remove('show');
+          }, 250);
+        }, index * 30);
+      });
+      document.querySelectorAll('.bearing-btn').forEach(btn => {
+        btn.setAttribute('aria-expanded', 'false');
+      });
+      setLoadingState(false);
+    }, 100);
+  };
+
+  // Print functionality removed
+
+  // Add slideUp animation
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes slideUp {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(-10px); }
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Auto-focus removed - no critical items
+
+</script>
+</body>
+</html>
