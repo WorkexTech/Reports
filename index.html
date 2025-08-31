@@ -32,7 +32,7 @@
   .detail{display:none;border-top:1px dashed var(--line);margin-top:10px;padding-top:12px;grid-column:1/-1;animation:slideDown 0.3s ease-out}
   @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
   .detail.show{display:block}
-  .detail-grid{display:grid;grid-template-columns:1.2fr 1.2fr 1.2fr 1.6fr;gap:14px}
+  .detail-grid{display:grid;grid-template-columns:1.2fr 1.2fr 1.2fr 1.2fr 1.4fr;gap:14px}
   .kv{background:#f8fafc;border:1px solid var(--line);border-radius:10px;padding:10px;transition:all 0.2s}
   .kv:hover{background:#f1f5f9;border-color:#cbd5e1}
   .kv b{display:block;color:#111;margin-bottom:4px}
@@ -54,7 +54,7 @@
     .row > div:nth-child(2)::before{content:'Pumps: '}
     .row > div:nth-child(3)::before{content:'Volume: '}
     .row > div:nth-child(4)::before{content:'Interval: '}
-    .detail-grid{grid-template-columns:1fr;gap:10px}
+    .detail-grid{grid-template-columns:1fr 1fr;gap:10px}
     .bearing-btn{font-size:1rem}
     .toolbar{flex-direction:column;gap:10px}
     .toolbar input{width:100%;margin-bottom:5px}
@@ -118,9 +118,10 @@
             <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
             <div class="kv"><b>Pumps Required</b><span>2–3 pumps (≈3–5 ml)</span></div>
             <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
-            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Position B2</span></div>
+            <div class="kv"><b>Area</b><span>Line 2 Processing</span></div>
+            <div class="kv"><b>Location</b><span>Infeed Roller</span></div>
             <div class="kv imgbox"><img alt="UC203 bearing image" src="images/uc203.jpg"/></div>
-            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+            <div class="kv note"><b>Service Notes</b><span>Access is behind the DP panel on the right hand side. Remove guard to grease</span></div>
           </div>
         </div>
       </div>
@@ -140,9 +141,10 @@
             <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
             <div class="kv"><b>Pumps Required</b><span>3–4 pumps (≈5–6 ml)</span></div>
             <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
-            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Position B3 & B4</span></div>
+            <div class="kv"><b>Area</b><span>Line 5 Packaging</span></div>
+            <div class="kv"><b>Location</b><span>Outfeed Operator Side</span></div>
             <div class="kv imgbox"><img alt="UC204 photo" src="images/uc204.jpg"/></div>
-            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+            <div class="kv note"><b>Service Notes</b><span>All grease nipples on lube bank require 3-4 pumps, be sure to remove excess grease</span></div>
           </div>
         </div>
       </div>
@@ -162,9 +164,10 @@
             <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
             <div class="kv"><b>Pumps Required</b><span>3–4 pumps (≈5–8 ml)</span></div>
             <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
-            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Position B5</span></div>
+            <div class="kv"><b>Area</b><span>Processing</span></div>
+            <div class="kv"><b>Location</b><span>Drive Roller</span></div>
             <div class="kv imgbox"><img alt="UC205 photo" src="images/uc205.jpg"/></div>
-            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+            <div class="kv note"><b>Service Notes</b><span>You can only access bearing while LOTO is applied, otherwise grease lube bank</span></div>
           </div>
         </div>
       </div>
@@ -184,9 +187,10 @@
             <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
             <div class="kv"><b>Pumps Required</b><span>4–5 pumps (≈8–10 ml)</span></div>
             <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
-            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Positions B6, B7, B8</span></div>
+            <div class="kv"><b>Area</b><span>Baking</span></div>
+            <div class="kv"><b>Location</b><span>Third Gauge Roller Operator Side</span></div>
             <div class="kv imgbox"><img alt="UC206 photo" src="images/uc206.jpg"/></div>
-            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+            <div class="kv note"><b>Service Notes</b><span>Access is from the non operator side under the main drive roller</span></div>
           </div>
         </div>
       </div>
@@ -208,7 +212,7 @@
             <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
             <div class="kv"><b>Location Details</b><span><b>🔧 Drive End</b> • Position A1 • 40mm Shaft</span></div>
             <div class="kv imgbox"><img alt="UCF208 square flange" src="images/ucf208.jpg"/></div>
-            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+            <div class="kv note"><b>Service Notes</b><span>Be sure to remove excessive grease as Greasing nipple is over product area</span></div>
           </div>
         </div>
       </div>
@@ -228,9 +232,10 @@
             <div class="kv"><b>Grease Type</b><span>Multi-purpose Lithium Complex EP (NLGI #2)</span></div>
             <div class="kv"><b>Pumps Required</b><span>5 pumps (≈15–18 ml)</span></div>
             <div class="kv"><b>Service Interval</b><span>Every 90 days</span></div>
-            <div class="kv"><b>Location Details</b><span>Conveyor Unit C-204 • Position C1</span></div>
+            <div class="kv"><b>Area</b><span>Line 2 Processing</span></div>
+            <div class="kv"><b>Location</b><span>Drive Roller</span></div>
             <div class="kv imgbox"><img alt="UC209 photo" src="images/uc209jpg.jpg"/></div>
-            <div class="kv note"><b>Service Notes</b><span>Standard housing. Check for contamination after wash-downs.</span></div>
+            <div class="kv note"><b>Service Notes</b><span>Check automatic lube bank periodically</span></div>
           </div>
         </div>
       </div>
